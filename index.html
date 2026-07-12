@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>撮影現場体力ラボ｜国立競技場ミッション</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#12181F">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="体力ラボ">
+<link rel="icon" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&family=Oswald:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#12181F;
+    --surface:#1B2430;
+    --surface-2:#212B38;
+    --surface-3:#293445;
+    --amber:#F2A93B;
+    --amber-dim:#F2A93B33;
+    --clay:#C1503A;
+    --turf:#6FA287;
+    --text:#EDEFF2;
+    --muted:#8B96A5;
+    --border:#2A3542;
+    --danger:#C1503A;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+    font-family:'Noto Sans JP',sans-serif;}
+  body{display:flex;justify-content:center;}
+  .app{width:100%;max-width:460px;min-height:100vh;background:
+      radial-gradient(1200px 500px at 50% -10%, #1c2532 0%, var(--bg) 55%);
+    display:flex;flex-direction:column;position:relative;padding-bottom:84px;}
+
+  .num{font-family:'Oswald',sans-serif;}
+  h1,h2,h3,.disp{font-family:'Zen Kaku Gothic New',sans-serif;}
+
+  /* ---------- Top bar ---------- */
+  .topbar{padding:22px 20px 8px;}
+  .eyebrow{font-size:11px;letter-spacing:.14em;color:var(--muted);
+    display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+  .eyebrow .dot{width:5px;height:5px;border-radius:50%;background:var(--amber);}
+  .title-row{display:flex;justify-content:space-between;align-items:flex-start;}
+  h1{font-size:21px;margin:0;font-weight:900;letter-spacing:.01em;line-height:1.3;}
+  .sub{color:var(--muted);font-size:12.5px;margin-top:4px;}
+
+  /* ---------- Hero: track gauge ---------- */
+  .hero{margin:14px 20px 6px;background:linear-gradient(165deg,var(--surface) 0%, var(--surface-2) 100%);
+    border:1px solid var(--border);border-radius:22px;padding:22px 18px;
+    display:flex;align-items:center;gap:18px;position:relative;overflow:hidden;}
+  .hero::before{content:"";position:absolute;top:-40%;right:-30%;width:260px;height:260px;
+    background:radial-gradient(circle, var(--amber-dim) 0%, transparent 70%);pointer-events:none;}
+  .gauge-wrap{position:relative;width:126px;height:126px;flex-shrink:0;}
+  .gauge-wrap svg{width:100%;height:100%;transform:rotate(-90deg);}
+  .gauge-center{position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;}
+  .gauge-center .days{font-size:26px;font-weight:600;color:var(--amber);line-height:1;}
+  .gauge-center .days-label{font-size:9.5px;color:var(--muted);margin-top:3px;letter-spacing:.04em;}
+  .hero-info{flex:1;min-width:0;}
+  .level-title{font-size:16px;font-weight:700;color:var(--text);margin:0 0 2px;}
+  .level-sub{font-size:11.5px;color:var(--muted);margin-bottom:10px;}
+  .pbar{height:7px;border-radius:99px;background:var(--surface-3);overflow:hidden;margin-bottom:6px;}
+  .pbar-fill{height:100%;background:linear-gradient(90deg,var(--clay),var(--amber));border-radius:99px;
+    transition:width .5s ease;}
+  .pbar-cap{font-size:10.5px;color:var(--muted);display:flex;justify-content:space-between;}
+
+  .stat-row{display:flex;gap:9px;margin:12px 20px 4px;}
+  .stat{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:14px;
+    padding:11px 4px;text-align:center;}
+  .stat .v{font-size:19px;font-weight:600;color:var(--text);}
+  .stat .k{font-size:10px;color:var(--muted);margin-top:2px;}
+  .stat.on .v{color:var(--amber);}
+
+  /* ---------- Sections ---------- */
+  main{flex:1;padding:6px 20px 10px;}
+  .section-head{display:flex;align-items:baseline;justify-content:space-between;
+    margin:20px 0 10px;}
+  .section-head h2{font-size:15.5px;margin:0;font-weight:700;}
+  .section-head .tag{font-size:11px;color:var(--muted);}
+
+  .week-banner{background:var(--surface);border:1px solid var(--border);border-radius:16px;
+    padding:13px 15px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .week-banner .phase-chip{display:inline-block;font-size:10.5px;color:var(--amber);
+    background:var(--amber-dim);border-radius:99px;padding:2px 9px;margin-bottom:5px;}
+  .week-banner .theme{font-size:14px;font-weight:700;}
+  .week-banner .dates{font-size:11px;color:var(--muted);margin-top:2px;}
+  .week-banner .wk{font-family:'Oswald',sans-serif;font-size:24px;color:var(--muted);text-align:right;}
+  .week-banner .wk b{color:var(--amber);font-size:30px;}
+
+  .toggle-row{display:flex;gap:8px;margin-bottom:14px;}
+  .toggle-btn{flex:1;text-align:center;padding:9px 6px;border-radius:12px;border:1px solid var(--border);
+    background:var(--surface);color:var(--muted);font-size:12.5px;font-weight:500;cursor:pointer;}
+  .toggle-btn.active{background:var(--clay);color:#fff;border-color:var(--clay);}
+
+  .item{display:flex;align-items:center;gap:13px;background:var(--surface);
+    border:1px solid var(--border);border-radius:16px;padding:13px 14px;margin-bottom:9px;
+    transition:border-color .2s, background .2s;}
+  .item.done{border-color:var(--turf);background:linear-gradient(90deg,#1B2430,#1c2b26);}
+  .item .ico{width:38px;height:38px;border-radius:11px;background:var(--surface-3);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .item.done .ico{background:var(--turf);}
+  .item .ico svg{width:19px;height:19px;stroke:var(--muted);}
+  .item.done .ico svg{stroke:#0e1712;}
+  .item .body{flex:1;min-width:0;}
+  .item .name{font-size:13.5px;font-weight:700;}
+  .item .desc{font-size:11px;color:var(--muted);margin-top:1px;line-height:1.4;}
+  .check{width:25px;height:25px;border-radius:8px;border:2px solid var(--border);flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--surface-2);}
+  .check.on{background:var(--turf);border-color:var(--turf);}
+  .check svg{width:14px;height:14px;stroke:#0e1712;display:none;}
+  .check.on svg{display:block;}
+
+  .mini-input{display:flex;align-items:center;gap:6px;}
+  .mini-input input, .mini-input select{width:52px;background:var(--surface-2);border:1px solid var(--border);
+    color:var(--text);border-radius:8px;padding:6px 4px;text-align:center;font-family:'Oswald',sans-serif;
+    font-size:14px;}
+  .mini-input span{font-size:10.5px;color:var(--muted);}
+
+  .note-box{margin-top:2px;margin-bottom:14px;}
+  .note-box textarea{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:14px;
+    color:var(--text);padding:11px 13px;font-family:inherit;font-size:12.5px;resize:none;min-height:52px;}
+  .note-box textarea::placeholder{color:var(--muted);}
+
+  .today-total{display:flex;align-items:center;justify-content:space-between;background:var(--surface-2);
+    border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-top:6px;}
+  .today-total .lbl{font-size:12px;color:var(--muted);}
+  .today-total .pts{font-family:'Oswald',sans-serif;font-size:26px;color:var(--amber);}
+
+  /* accordion (tips) */
+  .accordion{background:var(--surface);border:1px solid var(--border);border-radius:16px;
+    margin-bottom:10px;overflow:hidden;}
+  .acc-head{padding:14px 15px;display:flex;justify-content:space-between;align-items:center;
+    cursor:pointer;}
+  .acc-head .l{display:flex;align-items:center;gap:10px;}
+  .acc-head .ico2{width:32px;height:32px;border-radius:9px;background:var(--surface-3);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .acc-head .ico2 svg{width:16px;height:16px;stroke:var(--amber);}
+  .acc-head .t{font-size:13.5px;font-weight:700;}
+  .acc-head .chev{color:var(--muted);font-size:12px;transition:transform .2s;}
+  .acc-head.open .chev{transform:rotate(180deg);}
+  .acc-body{max-height:0;overflow:hidden;transition:max-height .28s ease;}
+  .acc-body-in{padding:0 15px 16px;font-size:12.5px;color:var(--text);line-height:1.75;}
+  .acc-body-in ul{margin:0;padding-left:18px;}
+  .acc-body-in li{margin-bottom:6px;color:#D6DAE1;}
+  .acc-body-in .lead{color:var(--muted);margin-bottom:8px;font-size:12px;}
+
+  /* week plan list */
+  .wk-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;
+    padding:13px 15px;margin-bottom:9px;display:flex;gap:12px;align-items:flex-start;}
+  .wk-card.current{border-color:var(--amber);background:linear-gradient(90deg,#1B2430,#241d13);}
+  .wk-card.past{opacity:.55;}
+  .wk-card .wknum{font-family:'Oswald',sans-serif;font-size:20px;color:var(--muted);width:34px;flex-shrink:0;
+    padding-top:1px;}
+  .wk-card.current .wknum{color:var(--amber);}
+  .wk-card .wkbody{flex:1;min-width:0;}
+  .wk-card .wktheme{font-size:13px;font-weight:700;}
+  .wk-card .wkdate{font-size:10.5px;color:var(--muted);margin:2px 0 5px;}
+  .wk-card .wkmenu{font-size:11.5px;color:#C4CAD3;line-height:1.5;}
+  .wk-card .phase-chip{display:inline-block;font-size:9.5px;color:var(--amber);
+    background:var(--amber-dim);border-radius:99px;padding:1.5px 7px;margin-bottom:5px;}
+
+  /* badges */
+  .badge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:16px;}
+  .badge{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 6px;
+    text-align:center;}
+  .badge.earned{border-color:var(--amber);background:linear-gradient(180deg,#241d13,#1B2430);}
+  .badge .bicon{width:34px;height:34px;margin:0 auto 6px;border-radius:50%;background:var(--surface-3);
+    display:flex;align-items:center;justify-content:center;}
+  .badge.earned .bicon{background:var(--amber);}
+  .badge .bicon svg{width:16px;height:16px;stroke:var(--muted);}
+  .badge.earned .bicon svg{stroke:#241a08;}
+  .badge .bname{font-size:9.5px;color:var(--muted);line-height:1.3;}
+  .badge.earned .bname{color:var(--text);font-weight:500;}
+
+  /* bottom nav */
+  nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:460px;
+    background:rgba(27,36,48,.92);backdrop-filter:blur(10px);border-top:1px solid var(--border);
+    display:flex;padding:8px 6px calc(8px + env(safe-area-inset-bottom));z-index:20;}
+  .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;
+    color:var(--muted);cursor:pointer;border-radius:12px;}
+  .nav-btn svg{width:20px;height:20px;stroke:var(--muted);fill:none;}
+  .nav-btn.active{color:var(--amber);}
+  .nav-btn.active svg{stroke:var(--amber);}
+  .nav-btn .lbl2{font-size:10px;}
+
+  .view{display:none;}
+  .view.active{display:block;animation:fadein .25s ease;}
+  @keyframes fadein{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+  .empty-hint{font-size:11.5px;color:var(--muted);text-align:center;padding:10px 20px 4px;}
+
+  .toast{position:fixed;bottom:96px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--turf);color:#0e1712;font-size:12.5px;font-weight:700;padding:10px 18px;
+    border-radius:99px;opacity:0;pointer-events:none;transition:all .3s ease;z-index:30;white-space:nowrap;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  .loading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;
+    color:var(--muted);font-size:13px;z-index:50;}
+
+  .ex-link{display:inline-flex;align-items:center;gap:4px;margin-top:6px;font-size:11px;font-weight:700;
+    color:var(--amber);}
+
+  /* ---------- Exercise overlay ---------- */
+  .ex-overlay{position:fixed;inset:0;z-index:60;display:none;background:rgba(10,14,19,.62);
+    backdrop-filter:blur(2px);justify-content:center;}
+  .ex-overlay.show{display:flex;align-items:flex-end;}
+  .ex-panel{width:100%;max-width:460px;max-height:88vh;background:var(--bg);
+    border-radius:24px 24px 0 0;border:1px solid var(--border);border-bottom:none;
+    display:flex;flex-direction:column;animation:slideUp .25s ease;}
+  @keyframes slideUp{from{transform:translateY(30px);opacity:.5}to{transform:translateY(0);opacity:1}}
+  .ex-panel-head{display:flex;justify-content:space-between;align-items:center;
+    padding:16px 18px 6px;flex-shrink:0;}
+  .ex-panel-title{font-family:'Zen Kaku Gothic New',sans-serif;font-weight:700;font-size:15px;}
+  .ex-close{width:30px;height:30px;border-radius:50%;background:var(--surface-2);
+    display:flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer;font-size:13px;
+    flex-shrink:0;}
+  .ex-panel-body{overflow-y:auto;padding:6px 18px 30px;}
+
+  .ex-list-card{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);
+    border-radius:16px;padding:10px 13px;margin-bottom:9px;cursor:pointer;}
+  .ex-list-card.done{border-color:var(--turf);background:linear-gradient(90deg,#1B2430,#1c2b26);}
+  .ex-mini{width:40px;height:52px;flex-shrink:0;color:var(--amber);}
+  .ex-mini svg{width:100%;height:100%;}
+  .ex-list-card .exn{font-size:13px;font-weight:700;}
+  .ex-list-card .exd{font-size:10.5px;color:var(--muted);margin-top:2px;}
+
+  .ex-player{display:flex;flex-direction:column;align-items:center;padding-top:2px;}
+  .ex-figure-big{width:110px;height:140px;color:var(--amber);margin-bottom:2px;}
+  .ex-figure-big svg{width:100%;height:100%;}
+  .ex-steps{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:14px;
+    padding:12px 14px;font-size:11.5px;color:#D6DAE1;line-height:1.7;margin:10px 0 12px;list-style:none;}
+  .ex-steps li{margin-bottom:4px;padding-left:14px;position:relative;}
+  .ex-steps li::before{content:"";position:absolute;left:0;top:7px;width:5px;height:5px;border-radius:50%;
+    background:var(--amber);}
+  .ex-set-dots{display:flex;gap:8px;margin-bottom:12px;}
+  .ex-set-dot{width:9px;height:9px;border-radius:50%;background:var(--surface-3);border:1px solid var(--border);}
+  .ex-set-dot.done{background:var(--turf);border-color:var(--turf);}
+  .ex-set-dot.cur{background:var(--amber);border-color:var(--amber);}
+
+  .ex-timer-ring{position:relative;width:170px;height:170px;margin:2px 0 14px;}
+  .ex-timer-ring svg{width:100%;height:100%;transform:rotate(-90deg);}
+  .ex-timer-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .ex-timer-num .big{font-family:'Oswald',sans-serif;font-size:36px;color:var(--text);}
+  .ex-timer-num .small{font-size:10.5px;color:var(--muted);margin-top:2px;}
+
+  .ex-tap-count{width:170px;height:170px;border-radius:50%;background:var(--surface-2);border:2px solid var(--border);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;
+    margin:2px 0 14px;user-select:none;}
+  .ex-tap-count.pulse{animation:tapPulse .22s ease;}
+  @keyframes tapPulse{0%{transform:scale(1)}50%{transform:scale(.93)}100%{transform:scale(1)}}
+  .ex-tap-count .big{font-family:'Oswald',sans-serif;font-size:38px;color:var(--amber);}
+  .ex-tap-count .small{font-size:10.5px;color:var(--muted);margin-top:2px;}
+  .ex-tap-hint{font-size:10.5px;color:var(--muted);margin-bottom:10px;margin-top:-6px;}
+
+  .ex-rest-label{font-size:12px;color:var(--turf);font-weight:700;margin-bottom:2px;}
+  .ex-done-badge{font-size:14.5px;font-weight:700;color:var(--turf);margin:18px 0 16px;text-align:center;}
+
+  .ex-controls{display:flex;gap:9px;width:100%;}
+  .ex-btn{flex:1;padding:13px;border-radius:14px;text-align:center;font-weight:700;font-size:13px;
+    cursor:pointer;border:1px solid var(--border);background:var(--surface-2);color:var(--text);}
+  .ex-btn.primary{background:var(--amber);color:#241a08;border-color:var(--amber);}
+  .ex-btn.wide{flex:2;}
+
+  /* figure archetype animations */
+  .figure{color:var(--muted);}
+  .fig-big .fig-head,.fig-big .fig-torso,.fig-big .fig-armL,.fig-big .fig-armR,.fig-big .fig-legL,.fig-big .fig-legR{
+    stroke:var(--amber);}
+  .fig-mini{color:var(--amber);}
+  @keyframes pulseGlow{0%,100%{opacity:.5}50%{opacity:1}}
+  @keyframes bounceY{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+  @keyframes rockLR{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+  @keyframes rockSlow{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+  @keyframes armCircleL{0%{transform:rotate(0deg)}100%{transform:rotate(-360deg)}}
+  @keyframes armCircleR{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+  @keyframes breatheScale{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+
+  .arch-hold{animation:pulseGlow 2.4s ease-in-out infinite;}
+  .arch-tilt{animation:pulseGlow 2.4s ease-in-out infinite;transform:rotate(16deg);
+    transform-origin:50px 128px;}
+  .arch-bounce{animation:bounceY 1s ease-in-out infinite;}
+  .arch-rock{animation:rockSlow 2.4s ease-in-out infinite;transform-origin:50px 128px;}
+  .arch-oneleg .fig-legR{transform:rotate(30deg);transform-origin:50px 85px;}
+  .arch-rotatearms .fig-armL{animation:armCircleL 1.8s linear infinite;transform-origin:50px 42px;}
+  .arch-rotatearms .fig-armR{animation:armCircleR 1.8s linear infinite;transform-origin:50px 42px;}
+  .arch-breathe .fig-torso,.arch-breathe .fig-head{animation:breatheScale 4s ease-in-out infinite;
+    transform-origin:50px 60px;}
+</style>
+</head>
+<body>
+<div class="loading" id="loading">読み込み中…</div>
+<div class="app" id="app" style="display:none;">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="eyebrow"><span class="dot"></span>NATIONAL STADIUM MISSION</div>
+    <div class="title-row">
+      <div>
+        <h1>撮影現場<br>体力ラボ</h1>
+      </div>
+    </div>
+    <div class="sub">11/20 リハーサル ・ 11/21 本番 ー 疲れにくい身体で臨む</div>
+  </div>
+
+  <!-- HERO GAUGE -->
+  <div class="hero">
+    <div class="gauge-wrap">
+      <svg viewBox="0 0 126 126">
+        <circle cx="63" cy="63" r="54" fill="none" stroke="#293445" stroke-width="10"/>
+        <circle id="gaugeRing" cx="63" cy="63" r="54" fill="none" stroke="url(#grad)" stroke-width="10"
+          stroke-linecap="round" stroke-dasharray="339" stroke-dashoffset="339"/>
+        <defs>
+          <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#C1503A"/>
+            <stop offset="100%" stop-color="#F2A93B"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="gauge-center">
+        <div class="days num" id="daysLeft">--</div>
+        <div class="days-label">本番まで(日)</div>
+      </div>
+    </div>
+    <div class="hero-info">
+      <div class="level-title" id="levelTitle">Lv.1 見習いアシスタント</div>
+      <div class="level-sub" id="levelSub">まずは1日をチェックしてみよう</div>
+      <div class="pbar"><div class="pbar-fill" id="levelBar" style="width:0%"></div></div>
+      <div class="pbar-cap"><span id="ptsNow">0P</span><span id="ptsNext">次のLvまで --P</span></div>
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat" id="statStreak"><div class="v">0</div><div class="k">連続日数</div></div>
+    <div class="stat" id="statWeek"><div class="v">W1</div><div class="k">現在の週</div></div>
+    <div class="stat" id="statTotal"><div class="v">0</div><div class="k">総ポイント</div></div>
+  </div>
+
+  <main>
+    <!-- ============ VIEW: 今日 ============ -->
+    <div class="view active" id="view-today">
+      <div class="section-head" style="margin-top:18px;">
+        <h2>今日のチェックリスト</h2>
+        <span class="tag" id="todayDate">-</span>
+      </div>
+
+      <div class="week-banner">
+        <div>
+          <div class="phase-chip" id="tPhase">-</div>
+          <div class="theme" id="tTheme">-</div>
+          <div class="dates" id="tMenu">-</div>
+        </div>
+        <div class="wk"><b id="tWeekNum">1</b>週目</div>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-btn active" id="modeNormal">通常モード</div>
+        <div class="toggle-btn" id="modeTired">しんどい日モード</div>
+      </div>
+
+      <div id="itemsWrap"></div>
+
+      <div class="note-box">
+        <textarea id="noteInput" placeholder="ひとことメモ（機材の重さ・体の張り・良かったことなど）"></textarea>
+      </div>
+
+      <div class="today-total">
+        <div class="lbl">今日の達成ポイント</div>
+        <div class="pts"><span id="todayPts">0</span><span style="font-size:14px;color:var(--muted);">/6</span></div>
+      </div>
+      <div class="empty-hint">チェックは自動保存されます。翌日また開けば続きから。</div>
+    </div>
+
+    <!-- ============ VIEW: 週間 ============ -->
+    <div class="view" id="view-week">
+      <div class="section-head" style="margin-top:18px;">
+        <h2>19週間プラン</h2>
+        <span class="tag">基礎16週＋仕上げ3週</span>
+      </div>
+      <div class="empty-hint" style="padding-top:0;margin-bottom:12px;text-align:left;">
+        7/13スタート。国立競技場までのカレンダーに合わせ、ユーザー指定の「16週間」を基礎プログラムとし、
+        本番週まで自然につながるよう仕上げ期3週を追加した全19週構成です。
+      </div>
+      <div id="weekList"></div>
+    </div>
+
+    <!-- ============ VIEW: Tips ============ -->
+    <div class="view" id="view-tips">
+      <div class="section-head" style="margin-top:18px;">
+        <h2>現場Tips &amp; 生活習慣</h2>
+      </div>
+      <div id="accWrap"></div>
+    </div>
+
+    <!-- ============ VIEW: 実績 ============ -->
+    <div class="view" id="view-badges">
+      <div class="section-head" style="margin-top:18px;">
+        <h2>実績・バッジ</h2>
+      </div>
+      <div class="badge-grid" id="badgeGrid"></div>
+
+      <div class="section-head">
+        <h2>直近の記録</h2>
+      </div>
+      <div id="historyList"></div>
+      <div class="empty-hint" id="historyEmpty">まだ記録がありません。「今日」タブからチェックしてみましょう。</div>
+    </div>
+  </main>
+
+  <nav>
+    <div class="nav-btn active" data-view="today">
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      <span class="lbl2">今日</span>
+    </div>
+    <div class="nav-btn" data-view="week">
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      <span class="lbl2">週間</span>
+    </div>
+    <div class="nav-btn" data-view="tips">
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M15 14a5 5 0 10-6 0c1 1 1.5 2 1.5 3h3c0-1 .5-2 1.5-3z"/></svg>
+      <span class="lbl2">Tips</span>
+    </div>
+    <div class="nav-btn" data-view="badges">
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M9 14l-2 8 5-3 5 3-2-8"/></svg>
+      <span class="lbl2">実績</span>
+    </div>
+  </nav>
+</div>
+
+<div class="ex-overlay" id="exOverlay">
+  <div class="ex-panel">
+    <div class="ex-panel-head">
+      <div class="ex-panel-title" id="exPanelTitle">エクササイズ</div>
+      <div class="ex-close" id="exClose">✕</div>
+    </div>
+    <div class="ex-panel-body" id="exPanelBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   DATA
+============================================================ */
+const START = new Date(2026,6,13); // 7/13
+const EVENT_REHEARSAL = new Date(2026,10,20);
+const EVENT_DAY = new Date(2026,10,21);
+
+const PHASES = [
+  {range:[1,4], name:"①基礎期", color:""},
+  {range:[5,8], name:"②持久力期"},
+  {range:[9,12], name:"③現場動作期"},
+  {range:[13,16], name:"④実践期"},
+  {range:[17,18], name:"⑤仕上げ期"},
+  {range:[19,19], name:"⑥本番週"},
+];
+function phaseOf(w){ return PHASES.find(p=>w>=p.range[0]&&w<=p.range[1]).name; }
+
+const THEMES = {
+ 1:"姿勢と呼吸を整える",2:"体幹スイッチを入れる",3:"股関節・足裏を目覚めさせる",4:"基礎の総仕上げ",
+ 5:"歩行時間を伸ばす",6:"下半身の粘りを作る",7:"有酸素の土台を厚くする",8:"持久力の総仕上げ",
+ 9:"肩・首・前腕のケアを習慣化",10:"片足重心と体幹連動",11:"長時間保持の練習",12:"現場動作の総仕上げ",
+ 13:"長時間立位シミュレーション①",14:"集中力トレーニングを追加",15:"長時間立位シミュレーション②",
+ 16:"実践の総仕上げ",17:"強度を上げず質を高める",18:"疲労を抜きながら微調整",19:"テーパー・最終調整"
+};
+const WALK_TARGET = {1:20,2:20,3:25,4:25,5:25,6:30,7:30,8:30,9:30,10:35,11:35,12:35,
+ 13:35,14:40,15:40,16:40,17:30,18:25,19:20};
+const CORE_MENU = {
+ 1:"プランク10秒×3／かかと上げ10回×2",2:"プランク20秒×3／お尻歩き10歩×2",
+ 3:"サイドプランク15秒×左右／足裏タオルギャザー",4:"ここまでの種目を通しで1セット",
+ 5:"プランク30秒×3／スクワット10回×2",6:"片足立ち30秒×左右／カーフレイズ15回×2",
+ 7:"プランク40秒／ワイドスクワット12回×2",8:"ここまでの種目を通しで1.5セット",
+ 9:"肩甲骨回し＋壁天使ストレッチ／プランク40秒",10:"片足立ち行進60秒／サイドプランク20秒×左右",
+ 11:"三脚代わり体幹保持60秒／前腕グリップケア",12:"現場想定サーキット（体幹＋肩甲骨＋足裏）通し",
+ 13:"20分連続立位保持（タイマーで計測）",14:"立位保持25分＋集中力ドリル1回",
+ 15:"立位保持30分＋機材を持って重心移動練習",16:"本番想定サーキットを通しで実施",
+ 17:"強度そのまま・フォーム重視でゆっくり",18:"軽めの体幹のみ・疲労を残さない",
+ 19:"ストレッチと呼吸のみ。追い込まない"
+};
+const MOTTOS = {
+ 1:"深呼吸から始める",2:"お腹の芯を感じる",3:"足裏で地面をつかむ",4:"土台、完成。",
+ 5:"歩幅より歩数",6:"ぐらつかない軸を作る",7:"息が上がっても続けられる",8:"持久力、底上げ完了。",
+ 9:"肩の力を抜く技術",10:"片足でも安定するカメラマン",11:"構えを保つ筋力",12:"現場の動き、体に入った。",
+ 13:"本番の時間を体で覚える",14:"疲れても頭は冴えている",15:"撮影ペースに体を慣らす",16:"実戦力、完成。",
+ 17:"頑張りすぎない勇気",18:"整えることも練習のうち",19:"万全な状態で国立競技場へ"
+};
+
+function weekDates(w){
+  const s = new Date(START); s.setDate(s.getDate()+(w-1)*7);
+  const e = new Date(s); e.setDate(e.getDate()+6);
+  return [s,e];
+}
+function fmtMD(d){ return (d.getMonth()+1)+"/"+d.getDate(); }
+function dateKey(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function currentWeekNum(today){
+  const diffDays = Math.floor((today-START)/86400000);
+  if(diffDays<0) return 1;
+  return Math.min(19, Math.floor(diffDays/7)+1);
+}
+
+const ITEM_DEFS = [
+  {key:"walk", name:"朝ウォーキング", type:"num", unit:"分",
+    icon:'<path d="M13 4a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path d="M9 21l2-6-2-2 1-5 4 1 2 4-3 2 1 6"/>',
+    tired:false},
+  {key:"core", name:"体幹・下半身トレ", type:"bool",
+    icon:'<circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/>', tired:true},
+  {key:"shoulder", name:"肩・首・前腕ケア", type:"bool",
+    icon:'<path d="M4 15v-3a8 8 0 0116 0v3M2 15h4v5H4a2 2 0 01-2-2v-3zM18 15h4v3a2 2 0 01-2 2h-2v-5z"/>', tired:true},
+  {key:"brain", name:"脳リセット習慣", type:"bool",
+    icon:'<path d="M9 18h6M10 22h4M15 14a5 5 0 10-6 0c1 1 1.5 2 1.5 3h3c0-1 .5-2 1.5-3z"/>', tired:true},
+  {key:"sleep", name:"睡眠", type:"sleep",
+    icon:'<path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/>', tired:true},
+  {key:"meal", name:"水分・食事（たんぱく質/鉄）", type:"bool",
+    icon:'<path d="M4 3v7a3 3 0 003 3v8M4 3v18M7 3v10M9 3v7M17 3c-1.5 1.5-2 3-2 5 0 3 2 3 2 6v7"/>', tired:true},
+];
+
+const TIPS = [
+ {t:"現場向けの体力づくり", icon:'<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0116 0v1"/>',
+  lead:"長時間の立位・機材保持・移動に耐える身体は、筋肉量よりも「姿勢の省エネ化」と「疲労の分散」がカギです。",
+  items:[
+   "重心は土踏まずのやや前。反り腰・猫背だと同じ筋肉だけが疲弊するので、骨で支える意識を持つ",
+   "カメラを構える肩・首・前腕は使い続ける部位。撮影の合間に肩甲骨を大きく回すだけで疲労の蓄積が変わる",
+   "立ちっぱなしはふくらはぎのポンプ機能が落ちて足がむくむ。休憩時にかかと上げを10回するだけでも血流が戻る",
+   "片足に重心を長時間かけない。左右交互に体重を移すクセをつけると、腰・膝への負担が偏らない",
+   "リハ当日に「今日の立ち方・疲れやすい部位」をメモしておくと、本番の対策が具体的になる"
+  ]},
+ {t:"脳疲労を軽減する生活習慣", icon:'<path d="M9 18h6M10 22h4M15 14a5 5 0 10-6 0c1 1 1.5 2 1.5 3h3c0-1 .5-2 1.5-3z"/>',
+  lead:"見落としや注意力の低下は「意志の弱さ」ではなく、脳の情報処理容量が疲労で減っているサインのことが多いです。",
+  items:[
+   "睡眠不足は集中力に直結。まず削れないのは睡眠時間、という優先順位を崩さない",
+   "通知オフの時間を1日1回つくる。マルチタスクは脳疲労を早め、見落としの原因になりやすい",
+   "1〜3分の呼吸法（4秒吸って6秒吐く）は交感神経の高ぶりを鎮め、思考のリセットに効果的",
+   "画面を見続けたら20分に一度、6m以上先を20秒見る「20-20-20」で眼精疲労を予防",
+   "撮影本番前日は新しい情報のインプットを控えめにし、脳の処理待ちタスクを減らしておく"
+  ]},
+ {t:"食事・水分・睡眠のアドバイス", icon:'<path d="M4 3v7a3 3 0 003 3v8M4 3v18M7 3v10M9 3v7M17 3c-1.5 1.5-2 3-2 5 0 3 2 3 2 6v7"/>',
+  lead:"44歳女性は鉄・たんぱく質の不足が疲労感や集中力低下に出やすい年代。特別な食事制限より「不足させない」意識が有効です。",
+  items:[
+   "たんぱく質は毎食片手のひら1つ分を目安に（卵・魚・大豆製品・鶏むね等）",
+   "鉄分（赤身肉・レバー・ひじき・小松菜）とビタミンCを組み合わせると吸収率アップ",
+   "水分はカフェイン以外で1日1.2〜1.5L目安。現場当日は塩分・電解質も少量意識する",
+   "血糖値の急上昇・急降下は集中力低下のもと。甘い物単品より、たんぱく質と一緒に摂る",
+   "睡眠は7時間を目安に。就寝90分前の入浴・スマホを見ない時間が寝つきの質を上げる",
+   "本番2日前からは新しいことを試さず、いつも通りの食事・睡眠リズムで整える"
+  ]},
+ {t:"モチベーションが下がった日の代替メニュー", icon:'<path d="M12 2l2.4 6.8L21 9l-5 4.3L17.5 21 12 17l-5.5 4L8 13.3 3 9l6.6-.2z"/>',
+  lead:"「やらない」より「小さくやる」。0か100かではなく、続けること自体を目的にします。",
+  items:[
+   "5分だけモード：深呼吸1分＋ストレッチ4分だけでもOK、チェックはつけてよい",
+   "散歩だけモード：朝のウォーキングだけ完了させ、他は明日に持ち越す",
+   "完全休養デー：週1回までは「休息の日」として自分に許可する。休むのも計画のうち",
+   "しんどい日モードをアプリでON→項目が3つに減り、それでもポイントが入ります",
+   "できなかった日を責めない。翌日にリセットすればストリークへの影響は最小限です"
+  ]},
+];
+
+const REST_SECONDS = 15;
+
+const EXLIB = {
+ plank:{name:"プランク", cat:"体幹", type:"hold", arch:"arch-hold", defaultTarget:30, defaultSets:3,
+  steps:["うつ伏せから前腕とつま先で体を支える","頭からかかとまで一直線にする（お尻の上げ下げに注意）",
+   "お腹を軽くへこませ、呼吸を止めない","きつい場合は膝をついてもOK"]},
+ sideplank:{name:"サイドプランク", cat:"体幹", type:"hold", arch:"arch-tilt", defaultTarget:15, defaultSets:2,
+  steps:["横向きに寝て、片方の前腕とつま先で体を支える","頭からかかとまで一直線をキープ",
+   "腰を落とさないよう脇腹を持ち上げる意識","反対側も同じ時間行う"]},
+ calfRaise:{name:"かかと上げ（カーフレイズ）", cat:"下半身", type:"reps", arch:"arch-bounce", defaultTarget:12, defaultSets:2,
+  steps:["壁や机に手を添えて立つ","かかとをゆっくり上げてつま先立ち→2秒キープ",
+   "ゆっくり下ろす（反動を使わない）","むくみ・ふくらはぎの疲労予防に効果的"]},
+ hipWalk:{name:"お尻歩き", cat:"体幹", type:"reps", arch:"arch-rock", defaultTarget:10, defaultSets:2,
+  steps:["床に座り、脚を伸ばす","お尻だけを使って前に歩くように進む",
+   "腕を振ると勢いがつきやすい","体幹と股関節まわりの連動を高める"]},
+ towelGather:{name:"足裏タオルギャザー", cat:"下半身", type:"reps", arch:"arch-bounce", defaultTarget:15, defaultSets:2,
+  steps:["床にタオルを置き、その上に片足を乗せる","足の指だけでタオルを手前にたぐり寄せる",
+   "足裏・足指の細かい筋肉を刺激","反対の足も同様に行う"]},
+ squat:{name:"スクワット", cat:"下半身", type:"reps", arch:"arch-bounce", defaultTarget:10, defaultSets:2,
+  steps:["足を肩幅に開いて立つ","お尻を後ろに引くように腰を落とす",
+   "膝がつま先より前に出過ぎないよう注意","太ももが床と平行になる手前まででOK"]},
+ wideSquat:{name:"ワイドスクワット", cat:"下半身", type:"reps", arch:"arch-bounce", defaultTarget:12, defaultSets:2,
+  steps:["足を肩幅より広めに開き、つま先はやや外側","腰を真下に落とすイメージでしゃがむ",
+   "膝と同じ方向につま先を向ける","内もも・お尻をしっかり使う"]},
+ singleLegStand:{name:"片足立ち", cat:"バランス", type:"hold", arch:"arch-hold arch-oneleg", defaultTarget:30, defaultSets:2,
+  steps:["片足で立ち、反対の膝を軽く上げる","目線は一点に固定するとバランスが取りやすい",
+   "ぐらついたらすぐ足をついてOK","反対の足も同じ時間行う"]},
+ singleLegMarch:{name:"片足立ち行進", cat:"バランス", type:"hold", arch:"arch-rock arch-oneleg", defaultTarget:60, defaultSets:1,
+  steps:["その場で片足立ちのまま、もも上げを繰り返す","体幹を使ってぐらつきを抑える",
+   "カメラを構えるイメージで腕も安定させる","反対の脚に切り替えて同様に"]},
+ shoulderMobility:{name:"肩甲骨まわし＋壁天使", cat:"肩・首・前腕", type:"reps", arch:"arch-rotatearms", defaultTarget:10, defaultSets:2,
+  steps:["指先を肩に置き、肘で大きな円を描くように回す","前回し・後ろ回しをそれぞれ行う",
+   "仕上げに壁に背をつけ、腕をW字に上げ下げ（壁天使）","肩甲骨を寄せる・開く感覚を意識する"]},
+ tripodHold:{name:"三脚代わり体幹保持", cat:"体幹", type:"hold", arch:"arch-hold", defaultTarget:40, defaultSets:2,
+  steps:["三脚を構えるように腕を前に出し、姿勢をキープ","体幹に力を入れ、腕だけでなく体全体で支える",
+   "肩がすくまないよう、力を抜けるところは抜く","実際にカメラを持って行うとより実践的"]},
+ forearmCare:{name:"前腕ケア（ストレッチ）", cat:"肩・首・前腕", type:"hold", arch:"arch-hold", defaultTarget:15, defaultSets:2,
+  steps:["片腕を前に伸ばし、手のひらを上に向ける","反対の手で指先を下に軽く反らせて15秒キープ",
+   "手のひらを下に向け、指先を下に押して15秒キープ","カメラを握り続ける前腕の疲労・腱鞘炎を予防"]},
+ neckStretch:{name:"首ストレッチ", cat:"肩・首・前腕", type:"hold", arch:"arch-tilt", defaultTarget:15, defaultSets:2,
+  steps:["片手で頭を横に軽く倒し、反対の首筋を伸ばす","次に頭を斜め前に倒し、首の後ろ〜肩上部を伸ばす",
+   "引っ張らず、頭の重みだけでゆっくり伸ばす","左右均等に行う"]},
+ standSim:{name:"立位保持シミュレーション", cat:"現場想定", type:"hold", arch:"arch-rock", defaultTarget:1200, defaultSets:1,
+  steps:["実際の撮影のように立ち続け、時々重心を左右に移す","片足に体重をかけすぎないよう意識する",
+   "合間にかかと上げを数回入れると血流が保てる","目標時間を体に覚えさせるのが目的"]},
+ breathing:{name:"深呼吸リセット", cat:"脳リセット", type:"hold", arch:"arch-breathe", defaultTarget:60, defaultSets:1,
+  steps:["背筋を軽く伸ばして座る、または立つ","4秒かけて鼻から吸う",
+   "6秒かけてゆっくり口から吐く","これを繰り返し、思考をリセットする"]},
+};
+
+const CORE_EX = {
+ 1:[{id:"plank",target:10,sets:3},{id:"calfRaise",target:10,sets:2}],
+ 2:[{id:"plank",target:20,sets:3},{id:"hipWalk",target:10,sets:2}],
+ 3:[{id:"sideplank",target:15,sets:2},{id:"towelGather",target:15,sets:2}],
+ 4:[{id:"plank",target:20,sets:2},{id:"calfRaise",target:12,sets:2}],
+ 5:[{id:"plank",target:30,sets:3},{id:"squat",target:10,sets:2}],
+ 6:[{id:"singleLegStand",target:30,sets:2},{id:"calfRaise",target:15,sets:2}],
+ 7:[{id:"plank",target:40,sets:2},{id:"wideSquat",target:12,sets:2}],
+ 8:[{id:"plank",target:30,sets:2},{id:"squat",target:12,sets:2}],
+ 9:[{id:"tripodHold",target:40,sets:2},{id:"singleLegStand",target:30,sets:2}],
+ 10:[{id:"singleLegMarch",target:60,sets:1},{id:"sideplank",target:20,sets:2}],
+ 11:[{id:"tripodHold",target:60,sets:2},{id:"squat",target:12,sets:2}],
+ 12:[{id:"plank",target:40,sets:2},{id:"squat",target:12,sets:2}],
+ 13:[{id:"standSim",target:1200,sets:1}],
+ 14:[{id:"standSim",target:1500,sets:1}],
+ 15:[{id:"standSim",target:1800,sets:1}],
+ 16:[{id:"plank",target:40,sets:2},{id:"squat",target:12,sets:2}],
+ 17:[{id:"plank",target:40,sets:1},{id:"calfRaise",target:10,sets:1}],
+ 18:[{id:"plank",target:20,sets:1}],
+ 19:[{id:"breathing",target:60,sets:1}],
+};
+const SHOULDER_EX = {
+ default:[{id:"shoulderMobility",target:10,sets:2},{id:"forearmCare",target:15,sets:2}],
+ 19:[{id:"neckStretch",target:15,sets:1}],
+};
+function coreForWeek(w){ return CORE_EX[w] || CORE_EX[1]; }
+function shoulderForWeek(w){ return SHOULDER_EX[w] || SHOULDER_EX.default; }
+
+function figureSVG(archClass, size){
+  const cls = size==="mini" ? "figure "+archClass+" fig-mini" : "figure "+archClass+" fig-big";
+  return `<svg class="${cls}" viewBox="0 0 100 140" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round">
+    <circle class="fig-head" cx="50" cy="18" r="11"/>
+    <line class="fig-torso" x1="50" y1="29" x2="50" y2="85"/>
+    <line class="fig-armL" x1="50" y1="42" x2="26" y2="60"/>
+    <line class="fig-armR" x1="50" y1="42" x2="74" y2="60"/>
+    <line class="fig-legL" x1="50" y1="85" x2="32" y2="130"/>
+    <line class="fig-legR" x1="50" y1="85" x2="68" y2="130"/>
+  </svg>`;
+}
+function formatTime(s){
+  s = Math.max(0, Math.round(s));
+  if(s>=60){ const m=Math.floor(s/60), ss=s%60; return m+":"+String(ss).padStart(2,"0"); }
+  return String(s);
+}
+function beep(){
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = 880; g.gain.setValueAtTime(0.16, ctx.currentTime);
+    o.start(); o.stop(ctx.currentTime+0.18);
+  }catch(e){}
+}
+function buzz(ms){ if(navigator.vibrate){ try{navigator.vibrate(ms);}catch(e){} } }
+
+const LEVELS = [
+ {t:"見習いアシスタント", min:0},
+ {t:"三脚担当", min:40},
+ {t:"バッテリー係", min:90},
+ {t:"サブカメラ", min:160},
+ {t:"スイッチャー同期", min:250},
+ {t:"メインカメラ候補", min:350},
+ {t:"メインカメラマン", min:460},
+ {t:"現場リーダー", min:580},
+ {t:"テクニカルディレクター", min:700},
+ {t:"国立競技場のプロカメラマン", min:760},
+];
+
+/* ============================================================
+   STATE / STORAGE
+============================================================ */
+const STORE_KEY = "camera-training-v2";
+const OLD_STORE_KEY = "camera-training-v1";
+let DATA = { logs:{}, badgesSeen:{}, exerciseSessions:{}, menuProgress:{} };
+let currentMode = "normal"; // normal | tired
+
+function safeParseJSON(raw){
+  try{
+    const parsed = JSON.parse(raw);
+    if(parsed && typeof parsed === "object") return parsed;
+  }catch(e){
+    console.error("データの読み込みに失敗したため初期化します:", e);
+  }
+  return null;
+}
+
+// 保存済みデータが存在する場合は、その内容を保ったまま「足りないプロパティだけ」補完する。
+// DEFAULT値でまるごと上書きしないこと（進捗が消える原因になるため）。
+function normalizeData(raw){
+  return {
+    logs: (raw && typeof raw.logs === "object" && raw.logs) ? raw.logs : {},
+    badgesSeen: (raw && typeof raw.badgesSeen === "object" && raw.badgesSeen) ? raw.badgesSeen : {},
+    exerciseSessions: (raw && typeof raw.exerciseSessions === "object" && raw.exerciseSessions) ? raw.exerciseSessions : {},
+    menuProgress: (raw && typeof raw.menuProgress === "object" && raw.menuProgress) ? raw.menuProgress : {},
+  };
+}
+
+// 基本の保存先は localStorage。window.storage が使える特殊環境ではボーナスとして
+// 併用するが、通常のブラウザ（Chrome/Safari/Android Chrome等でファイルを直接開いた場合）
+// でも必ず localStorage だけで完結して動作する。
+function loadData(){
+  // 旧キー(v1)しか無い場合は新キー(v2)へ1回だけ移行する（新キーが既にあれば何もしない）
+  try{
+    const oldRaw = localStorage.getItem(OLD_STORE_KEY);
+    const newRaw = localStorage.getItem(STORE_KEY);
+    if(!newRaw && oldRaw){
+      localStorage.setItem(STORE_KEY, oldRaw);
+      console.debug("[storage migrate]", OLD_STORE_KEY, "->", STORE_KEY);
+    }
+  }catch(e){
+    console.error("旧データの移行に失敗しました:", e);
+  }
+
+  let loaded = null;
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw) loaded = safeParseJSON(raw);
+  }catch(e){
+    console.error("localStorageからの読み込みに失敗しました:", e);
+  }
+  DATA = normalizeData(loaded);
+  console.debug("[storage load]", STORE_KEY, DATA);
+
+  // localStorageに何もなかった場合のみ、window.storage（利用可能な環境限定）から復元を試みる。
+  // 失敗しても無視してよい（localStorageが唯一の必須ストレージのため）。
+  if(!loaded && window.storage && typeof window.storage.get === "function"){
+    window.storage.get(STORE_KEY, false).then(res=>{
+      if(!res || !res.value) return;
+      const p = safeParseJSON(res.value);
+      if(!p) return;
+      DATA = normalizeData(p);
+      try{ localStorage.setItem(STORE_KEY, JSON.stringify(DATA)); }catch(e){}
+      console.debug("[storage load:bonus-restore]", STORE_KEY, DATA);
+      renderHero(); renderToday(); renderBadges(); renderHistory();
+    }).catch(()=>{ /* window.storage未対応環境では無視 */ });
+  }
+}
+
+function saveDataSync(){
+  const payload = JSON.stringify(DATA);
+  try{
+    localStorage.setItem(STORE_KEY, payload);
+  }catch(e){
+    console.error("localStorageへの保存に失敗しました:", e);
+  }
+  if(window.storage && typeof window.storage.set === "function"){
+    try{ window.storage.set(STORE_KEY, payload, false).catch(()=>{}); }catch(e){}
+  }
+  console.debug("[storage save]", STORE_KEY, DATA);
+}
+// 既存呼び出し箇所（チェックリストのトグル等）との互換のためのエイリアス
+function saveData(){ saveDataSync(); }
+
+function todayKey(){ return dateKey(new Date()); }
+function getLog(key){
+  if(!DATA.logs[key]) DATA.logs[key] = {mode:"normal", walk:0, core:false, shoulder:false, brain:false,
+    sleepH:null, sleepQ:null, meal:false, note:""};
+  return DATA.logs[key];
+}
+function pointsFor(log, week){
+  const target = WALK_TARGET[week]||20;
+  let p = 0;
+  if(log.mode==="tired"){
+    // しんどい日モード：3項目（walk any / brain / meal）で最大3、かつ最低1は保証
+    if(log.walk>0) p++;
+    if(log.brain) p++;
+    if(log.meal) p++;
+    return p;
+  }
+  if(log.walk >= target) p++;
+  if(log.core) p++;
+  if(log.shoulder) p++;
+  if(log.brain) p++;
+  if(log.sleepQ!==null && log.sleepQ>=3) p++;
+  if(log.meal) p++;
+  return p;
+}
+function totalPoints(){
+  let sum=0;
+  for(const k in DATA.logs){ sum += pointsFor(DATA.logs[k], weekFromKey(k)); }
+  return sum;
+}
+function weekFromKey(k){
+  const [y,m,d] = k.split("-").map(Number);
+  const dt = new Date(y,m-1,d);
+  return currentWeekNum(dt);
+}
+function computeStreak(){
+  let streak=0;
+  let d = new Date();
+  while(true){
+    const k = dateKey(d);
+    const log = DATA.logs[k];
+    if(log && pointsFor(log, weekFromKey(k))>0){
+      streak++;
+      d.setDate(d.getDate()-1);
+    } else break;
+  }
+  return streak;
+}
+function loggedDaysCount(){ return Object.keys(DATA.logs).filter(k=>pointsFor(DATA.logs[k], weekFromKey(k))>0).length; }
+
+function levelInfo(pts){
+  let idx=0;
+  for(let i=0;i<LEVELS.length;i++){ if(pts>=LEVELS[i].min) idx=i; }
+  const cur = LEVELS[idx];
+  const next = LEVELS[idx+1];
+  return {idx, cur, next};
+}
+
+/* ============================================================
+   RENDER: TODAY
+============================================================ */
+function renderToday(){
+  const now = new Date();
+  const key = todayKey();
+  const week = currentWeekNum(now);
+  const log = getLog(key);
+  currentMode = log.mode || "normal";
+
+  document.getElementById("todayDate").textContent =
+    (now.getMonth()+1)+"/"+now.getDate()+"（"+["日","月","火","水","木","金","土"][now.getDay()]+"）";
+  document.getElementById("tPhase").textContent = phaseOf(week);
+  document.getElementById("tTheme").textContent = THEMES[week];
+  document.getElementById("tMenu").textContent = "今週の体幹メニュー: " + CORE_MENU[week];
+  document.getElementById("tWeekNum").textContent = week;
+
+  document.getElementById("modeNormal").classList.toggle("active", currentMode==="normal");
+  document.getElementById("modeTired").classList.toggle("active", currentMode==="tired");
+
+  const wrap = document.getElementById("itemsWrap");
+  wrap.innerHTML = "";
+  const target = WALK_TARGET[week]||20;
+
+  let visibleDefs = currentMode==="tired"
+    ? ITEM_DEFS.filter(d=>["walk","brain","meal"].includes(d.key))
+    : ITEM_DEFS;
+
+  visibleDefs.forEach(def=>{
+    const div = document.createElement("div");
+    let isDone = false;
+    let bodyHtml = "";
+
+    if(def.type==="bool"){
+      isDone = !!log[def.key];
+      const isGuided = def.key==="core" || def.key==="shoulder";
+      const guideLink = isGuided
+        ? `<div class="ex-link" data-open="${def.key}">▶ やり方＆タイマーを見る</div>` : "";
+      bodyHtml = `<div class="body"><div class="name">${def.name}</div>
+        <div class="desc">${def.key==="core" ? CORE_MENU[week] : def.key==="shoulder" ? "肩甲骨まわし・首ストレッチ・前腕ケア" : def.key==="brain" ? "深呼吸3〜5分 or 通知オフでデジタルデトックス" : "たんぱく質・鉄分を意識した一食"}</div>${guideLink}</div>
+        <div class="check ${isDone?"on":""}" data-key="${def.key}">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>`;
+    } else if(def.type==="num"){
+      isDone = (log.walk||0) >= (currentMode==="tired" ? 1 : target);
+      bodyHtml = `<div class="body"><div class="name">${def.name}</div>
+        <div class="desc">目標 ${currentMode==="tired" ? "少しでも歩ければOK" : target+"分"}</div></div>
+        <div class="mini-input"><input type="number" min="0" max="180" value="${log.walk||0}" data-num="walk"><span>分</span></div>`;
+    } else if(def.type==="sleep"){
+      isDone = log.sleepQ!==null && log.sleepQ>=3;
+      bodyHtml = `<div class="body"><div class="name">${def.name}</div>
+        <div class="desc">時間の目安 7h</div></div>
+        <div class="mini-input">
+          <input type="number" min="0" max="14" step="0.5" value="${log.sleepH??''}" placeholder="h" data-num="sleepH">
+          <select data-sel="sleepQ">
+            <option value="">質</option>
+            ${[1,2,3,4,5].map(v=>`<option value="${v}" ${log.sleepQ==v?"selected":""}>${v}</option>`).join("")}
+          </select>
+        </div>`;
+    }
+    div.className = "item" + (isDone ? " done" : "");
+    div.innerHTML = `<div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${def.icon}</svg></div>` + bodyHtml;
+    wrap.appendChild(div);
+  });
+
+  document.getElementById("noteInput").value = log.note || "";
+  document.getElementById("todayPts").textContent = pointsFor(log, week);
+
+  // bind events
+  wrap.querySelectorAll(".check").forEach(chk=>{
+    chk.addEventListener("click", async ()=>{
+      const k = chk.dataset.key;
+      const log2 = getLog(key);
+      log2[k] = !log2[k];
+      await saveData();
+      renderToday(); renderHero(); renderBadgesQuiet();
+    });
+  });
+  wrap.querySelectorAll('input[data-num="walk"]').forEach(inp=>{
+    inp.addEventListener("change", async ()=>{
+      const log2 = getLog(key);
+      log2.walk = Math.max(0, parseInt(inp.value)||0);
+      await saveData();
+      renderToday(); renderHero(); renderBadgesQuiet();
+    });
+  });
+  wrap.querySelectorAll('input[data-num="sleepH"]').forEach(inp=>{
+    inp.addEventListener("change", async ()=>{
+      const log2 = getLog(key);
+      log2.sleepH = inp.value===""?null:parseFloat(inp.value);
+      await saveData();
+      renderToday(); renderHero();
+    });
+  });
+  wrap.querySelectorAll('select[data-sel="sleepQ"]').forEach(sel=>{
+    sel.addEventListener("change", async ()=>{
+      const log2 = getLog(key);
+      log2.sleepQ = sel.value===""?null:parseInt(sel.value);
+      await saveData();
+      renderToday(); renderHero(); renderBadgesQuiet();
+    });
+  });
+}
+
+document.getElementById("noteInput").addEventListener("blur", async ()=>{
+  const log = getLog(todayKey());
+  log.note = document.getElementById("noteInput").value;
+  await saveData();
+});
+
+document.getElementById("modeNormal").addEventListener("click", async ()=>{
+  const log = getLog(todayKey());
+  log.mode = "normal";
+  await saveData(); renderToday(); renderHero();
+});
+document.getElementById("modeTired").addEventListener("click", async ()=>{
+  const log = getLog(todayKey());
+  log.mode = "tired";
+  await saveData(); renderToday(); renderHero();
+  showToast("しんどい日モード：無理せずいこう");
+});
+
+/* ============================================================
+   RENDER: HERO
+============================================================ */
+function renderHero(){
+  const now = new Date();
+  const daysLeft = Math.ceil((EVENT_DAY - now)/86400000);
+  document.getElementById("daysLeft").textContent = daysLeft>=0 ? daysLeft : "本番";
+
+  const week = currentWeekNum(now);
+  const circumference = 339; // 2*pi*54
+  const progress = Math.min(1, week/19);
+  document.getElementById("gaugeRing").setAttribute("stroke-dashoffset", circumference*(1-progress));
+
+  const pts = totalPoints();
+  const {idx, cur, next} = levelInfo(pts);
+  document.getElementById("levelTitle").textContent = "Lv."+(idx+1)+" "+cur.t;
+  document.getElementById("ptsNow").textContent = pts+"P";
+  if(next){
+    const span = next.min - cur.min;
+    const done = pts - cur.min;
+    document.getElementById("levelBar").style.width = Math.min(100, Math.max(4,(done/span)*100))+"%";
+    document.getElementById("ptsNext").textContent = "次のLvまで "+(next.min-pts)+"P";
+    document.getElementById("levelSub").textContent = "次のランク: "+next.t;
+  } else {
+    document.getElementById("levelBar").style.width = "100%";
+    document.getElementById("ptsNext").textContent = "最高ランク到達";
+    document.getElementById("levelSub").textContent = "国立競技場、行けます。";
+  }
+
+  document.getElementById("statStreak").querySelector(".v").textContent = computeStreak();
+  document.getElementById("statWeek").querySelector(".v").textContent = "W"+week;
+  document.getElementById("statTotal").querySelector(".v").textContent = pts;
+}
+
+/* ============================================================
+   EXERCISE PLAYER
+============================================================ */
+const RING_C = 2 * Math.PI * 70; // r=70のリングの円周
+let currentBasket = null;   // {key, list:[{id,target,sets}], title, index}
+let playerSession = null;   // 現在再生中のエクササイズのセッション（実体はDATA.exerciseSessions内のオブジェクト）
+let tickHandle = null;      // setInterval のハンドル（常に1つだけ）
+
+/* ---------- セッションキー・取得・保存・復元・削除 ---------- */
+function getExerciseSessionKey(dateKey, menuType, exerciseId){
+  return dateKey + "_" + menuType + "_" + exerciseId;
+}
+function makeInitialSession(dateKey, menuType, exerciseId, target, sets){
+  return {
+    exerciseId, menuType, dateKey,
+    currentSet: 1, completedSets: 0, currentReps: 0,
+    remainingSeconds: target, target, sets,
+    phase: "exercise", isRunning: false, isPaused: true,
+    startedAt: null, endsAt: null, completed: false, updatedAt: Date.now()
+  };
+}
+// 保存済みならそれを返すだけ。存在しない時だけ初期値を作る（開くたびに上書きしない）。
+function getExerciseSession(dateKey, menuType, exerciseId, target, sets){
+  const key = getExerciseSessionKey(dateKey, menuType, exerciseId);
+  if(!DATA.exerciseSessions[key]){
+    DATA.exerciseSessions[key] = makeInitialSession(dateKey, menuType, exerciseId, target, sets);
+  }
+  return DATA.exerciseSessions[key];
+}
+function saveExerciseSession(session){
+  session.updatedAt = Date.now();
+  const key = getExerciseSessionKey(session.dateKey, session.menuType, session.exerciseId);
+  DATA.exerciseSessions[key] = session;
+  console.debug("[exercise save]", key, JSON.parse(JSON.stringify(session)));
+  saveDataSync();
+}
+function restoreExerciseSession(dateKey, menuType, exerciseId){
+  const key = getExerciseSessionKey(dateKey, menuType, exerciseId);
+  const session = DATA.exerciseSessions[key] || null;
+  console.debug("[exercise restore]", key, session);
+  return session;
+}
+// 明示的なリセット時だけ呼ぶ。通常のクローズ/戻る操作からは絶対に呼ばない。
+function clearExerciseSession(dateKey, menuType, exerciseId, target, sets){
+  const key = getExerciseSessionKey(dateKey, menuType, exerciseId);
+  const session = makeInitialSession(dateKey, menuType, exerciseId, target, sets);
+  DATA.exerciseSessions[key] = session;
+  console.debug("[exercise reset]", key, session);
+  saveDataSync();
+  return session;
+}
+
+/* ---------- メニュー（体幹/肩ケア）全体の進捗 ---------- */
+function getMenuProgressKey(dateKey, menuType){ return dateKey + "_" + menuType; }
+function getMenuProgress(dateKey, menuType){
+  const key = getMenuProgressKey(dateKey, menuType);
+  if(!DATA.menuProgress[key]) DATA.menuProgress[key] = { completedExerciseIds: [], completed: false };
+  return DATA.menuProgress[key];
+}
+function markExerciseCompletedInMenu(dateKey, menuType, exerciseId, allExerciseIds){
+  const progress = getMenuProgress(dateKey, menuType);
+  if(!progress.completedExerciseIds.includes(exerciseId)) progress.completedExerciseIds.push(exerciseId);
+  progress.completed = allExerciseIds.every(id => progress.completedExerciseIds.includes(id));
+  if(progress.completed){
+    const log = getLog(dateKey);
+    log[menuType] = true;
+  }
+  saveDataSync();
+  return progress;
+}
+
+/* ---------- タイマー中に閉じた場合の後始末（居眠りしたタブ復帰・強制終了対策） ---------- */
+function normalizeRestoredSession(session){
+  if(session.isRunning && session.endsAt){
+    const rem = Math.max(0, Math.ceil((session.endsAt - Date.now()) / 1000));
+    session.remainingSeconds = rem;
+  }
+  // 開き直した瞬間は必ず一時停止状態から。continueするにはユーザーがスタートを押す。
+  session.isRunning = false;
+  session.isPaused = true;
+  session.endsAt = null;
+  return session;
+}
+
+function stopTicking(){
+  if(tickHandle){ clearInterval(tickHandle); tickHandle = null; }
+}
+function showExOverlay(){
+  document.getElementById("exOverlay").classList.add("show");
+  try{ history.pushState({ exOverlay: true }, ""); }catch(e){}
+}
+// fromUserAction=true: ✕ボタン/背景タップ等ユーザー操作からの明示的クローズ（history.back()でpushした分を消費）
+// fromUserAction=false: popstate(戻る操作)から呼ばれた後始末専用（再度history.back()は呼ばない）
+function closeExOverlay(fromUserAction){
+  if(fromUserAction === undefined) fromUserAction = true;
+  if(playerSession){
+    if(playerSession.isRunning && playerSession.endsAt){
+      playerSession.remainingSeconds = Math.max(0, Math.ceil((playerSession.endsAt - Date.now()) / 1000));
+    }
+    // 閉じる＝一時停止（記録は消さない）。次回開いた時に続きから再開できる。
+    playerSession.isRunning = false;
+    playerSession.isPaused = true;
+    playerSession.endsAt = null;
+    saveExerciseSession(playerSession);
+  }
+  saveDataSync();
+  stopTicking();
+  playerSession = null;
+  document.getElementById("exOverlay").classList.remove("show");
+  if(fromUserAction){
+    try{ if(history.state && history.state.exOverlay) history.back(); }catch(e){}
+  }
+}
+// タブが隠れる/離脱する瞬間の保存専用（オーバーレイは閉じない。タイマーの状態はそのまま保持）
+function persistCurrentSessionSnapshot(){
+  if(!playerSession) return;
+  saveExerciseSession(playerSession);
+  saveDataSync();
+}
+window.addEventListener("popstate", () => {
+  if(document.getElementById("exOverlay").classList.contains("show")) closeExOverlay(false);
+});
+window.addEventListener("visibilitychange", () => {
+  if(document.visibilityState === "hidden"){ persistCurrentSessionSnapshot(); return; }
+  if(document.visibilityState === "visible" && playerSession && playerSession.isRunning && playerSession.endsAt) tickTimer(playerSession);
+});
+window.addEventListener("pagehide", persistCurrentSessionSnapshot);
+window.addEventListener("beforeunload", persistCurrentSessionSnapshot);
+
+function openBasket(basketKey){
+  if(document.getElementById("exOverlay").classList.contains("show")) closeExOverlay(false);
+  stopTicking();
+  playerSession = null;
+  const week = currentWeekNum(new Date());
+  let list, title;
+  if(basketKey === "all"){
+    list = Object.keys(EXLIB).map(id => ({id, target: EXLIB[id].defaultTarget, sets: EXLIB[id].defaultSets}));
+    title = "エクササイズ図鑑（全種目）";
+  } else if(basketKey === "core"){
+    list = coreForWeek(week);
+    title = "体幹・下半身トレ";
+  } else {
+    list = shoulderForWeek(week);
+    title = "肩・首・前腕ケア";
+  }
+  currentBasket = { key: basketKey, list, title, index: 0 };
+  renderExerciseList();
+  showExOverlay();
+}
+
+function renderExerciseList(){
+  document.getElementById("exPanelTitle").textContent = currentBasket.title;
+  const body = document.getElementById("exPanelBody");
+  const dateKey = todayKey();
+  const progress = (currentBasket.key === "core" || currentBasket.key === "shoulder")
+    ? getMenuProgress(dateKey, currentBasket.key) : { completedExerciseIds: [] };
+  let html = `<div class="empty-hint" style="text-align:left;padding:0 0 12px;">気になる種目をタップすると、やり方とタイマーが開きます。</div>`;
+  currentBasket.list.forEach((it, i) => {
+    const def = EXLIB[it.id];
+    if(!def) return;
+    const targetLabel = def.type === "hold" ? formatTime(it.target) + "秒 ホールド" : "目標 " + it.target + "回";
+    const done = progress.completedExerciseIds.includes(it.id);
+    html += `<div class="ex-list-card${done ? " done" : ""}" data-idx="${i}">
+      <div class="ex-mini">${figureSVG(def.arch, "mini")}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="exn">${def.name}${done ? " ✅" : ""}</div>
+        <div class="exd">${def.cat} ／ ${targetLabel} × ${it.sets}セット${done ? "（完了済み）" : ""}</div>
+      </div>
+      <div style="color:var(--muted);font-size:16px;">›</div>
+    </div>`;
+  });
+  body.innerHTML = html;
+  body.querySelectorAll(".ex-list-card").forEach(card => {
+    card.addEventListener("click", () => openPlayer(parseInt(card.dataset.idx, 10)));
+  });
+}
+
+function openPlayer(index){
+  stopTicking();
+  currentBasket.index = index;
+  const it = currentBasket.list[index];
+  const dateKey = todayKey();
+  const menuType = currentBasket.key;
+  let session = getExerciseSession(dateKey, menuType, it.id, it.target, it.sets);
+  session = normalizeRestoredSession(session);
+  saveExerciseSession(session);
+  playerSession = session;
+  renderPlayer();
+}
+
+function dotsHtml(){
+  const ps = playerSession;
+  let html = "";
+  for(let i = 1; i <= ps.sets; i++){
+    const cls = i <= ps.completedSets ? "done" : (i === ps.currentSet && ps.phase !== "completed" ? "cur" : "");
+    html += `<div class="ex-set-dot ${cls}"></div>`;
+  }
+  return html;
+}
+
+function renderPlayer(){
+  const ps = playerSession;
+  if(!ps) return;
+  const def = EXLIB[ps.exerciseId];
+  const mode = def.type;
+  document.getElementById("exPanelTitle").textContent = def.name;
+  const body = document.getElementById("exPanelBody");
+  const stepsHtml = def.steps.map(s => `<li>${s}</li>`).join("");
+  const figureHtml = figureSVG(def.arch, "big");
+  const setLabel = `セット ${Math.min(ps.currentSet, ps.sets)} / ${ps.sets}`;
+
+  let mainHtml = "";
+  if(ps.phase === "completed"){
+    const hasNext = currentBasket.key !== "all" && currentBasket.index < currentBasket.list.length - 1;
+    mainHtml = `<div class="ex-done-badge">🎉 ${def.name} 完了！</div>
+      <div class="ex-controls">
+        ${hasNext ? `<div class="ex-btn primary wide" id="exNextBtn">次のエクササイズへ</div>` : ""}
+        <div class="ex-btn ${hasNext ? "" : "primary"} wide" id="exBackToListBtn">一覧へ戻る</div>
+      </div>`;
+  } else if(ps.phase === "rest"){
+    mainHtml = `
+      <div class="ex-rest-label">${setLabel}／セット間の休憩</div>
+      <div class="ex-timer-ring">
+        <svg viewBox="0 0 160 160">
+          <circle cx="80" cy="80" r="70" fill="none" stroke="#293445" stroke-width="10"/>
+          <circle id="exRingCircle" cx="80" cy="80" r="70" fill="none" stroke="url(#grad)" stroke-width="10"
+            stroke-linecap="round" stroke-dasharray="${RING_C}" stroke-dashoffset="0"/>
+        </svg>
+        <div class="ex-timer-num"><div class="big" id="exRingBig">${ps.remainingSeconds}</div><div class="small">休憩(秒)</div></div>
+      </div>
+      <div class="ex-controls">
+        <div class="ex-btn wide" id="exSkipRestBtn">休憩をスキップして次のセットへ</div>
+      </div>`;
+  } else if(mode === "hold"){
+    mainHtml = `
+      <div class="ex-rest-label">${setLabel}</div>
+      <div class="ex-timer-ring">
+        <svg viewBox="0 0 160 160">
+          <circle cx="80" cy="80" r="70" fill="none" stroke="#293445" stroke-width="10"/>
+          <circle id="exRingCircle" cx="80" cy="80" r="70" fill="none" stroke="url(#grad)" stroke-width="10"
+            stroke-linecap="round" stroke-dasharray="${RING_C}" stroke-dashoffset="0"/>
+        </svg>
+        <div class="ex-timer-num"><div class="big" id="exRingBig">${formatTime(ps.remainingSeconds)}</div><div class="small">ホールド(秒)</div></div>
+      </div>
+      <div class="ex-controls">
+        <div class="ex-btn" id="exResetBtn">リセット</div>
+        <div class="ex-btn primary wide" id="exStartPauseBtn">${ps.isRunning ? "一時停止" : (ps.remainingSeconds < ps.target ? "再開" : "スタート")}</div>
+      </div>`;
+  } else { // reps
+    mainHtml = `
+      <div class="ex-rest-label">${setLabel}</div>
+      <div class="ex-tap-count" id="exTapCircle">
+        <div class="big" id="exRepsBig">${ps.currentReps}/${ps.target}</div>
+        <div class="small">タップで+1回</div>
+      </div>
+      <div class="ex-tap-hint">タップし過ぎた時は「1回戻す」で調整できます</div>
+      <div class="ex-controls">
+        <div class="ex-btn" id="exMinusBtn">1回戻す</div>
+        <div class="ex-btn" id="exResetBtn">リセット</div>
+      </div>`;
+  }
+
+  body.innerHTML = `
+    <div class="ex-player">
+      <div class="ex-figure-big">${figureHtml}</div>
+      <ul class="ex-steps">${stepsHtml}</ul>
+      <div class="ex-set-dots">${dotsHtml()}</div>
+      ${mainHtml}
+    </div>`;
+
+  if(ps.phase === "exercise" && mode === "hold") updateRingDisplay(ps, ps.target);
+  if(ps.phase === "rest") updateRingDisplay(ps, REST_SECONDS);
+  bindPlayerControls();
+}
+
+function updateRingDisplay(session, totalSeconds){
+  const frac = totalSeconds > 0 ? session.remainingSeconds / totalSeconds : 0;
+  const ring = document.getElementById("exRingCircle");
+  if(ring) ring.setAttribute("stroke-dashoffset", RING_C * (1 - frac));
+  const big = document.getElementById("exRingBig");
+  if(big) big.textContent = session.phase === "rest" ? String(session.remainingSeconds) : formatTime(session.remainingSeconds);
+}
+
+// 開始時刻・終了予定時刻(endsAt)を基準に残り時間を再計算するので、タブが非アクティブになって
+// setIntervalの発火が遅れても、再度動き出した時点で正しい残り時間に補正される。
+// 1秒ごとのlocalStorage書き込みは行わず、開始/一時停止/完了などの節目でのみ保存する。
+function startTimer(session){
+  const totalSeconds = session.phase === "rest" ? REST_SECONDS : session.target;
+  const startFrom = (session.remainingSeconds != null) ? session.remainingSeconds : totalSeconds;
+  stopTicking();
+  session.startedAt = Date.now();
+  session.endsAt = Date.now() + startFrom * 1000;
+  session.isRunning = true;
+  session.isPaused = false;
+  saveExerciseSession(session);
+  tickHandle = setInterval(() => tickTimer(session), 200);
+  renderPlayer();
+}
+function pauseTimer(session){
+  stopTicking();
+  if(session.endsAt){
+    session.remainingSeconds = Math.max(0, Math.ceil((session.endsAt - Date.now()) / 1000));
+  }
+  session.isRunning = false;
+  session.isPaused = true;
+  session.endsAt = null;
+  saveExerciseSession(session);
+  renderPlayer();
+}
+function tickTimer(session){
+  if(!session.isRunning || !session.endsAt){ stopTicking(); return; }
+  const rem = Math.max(0, Math.ceil((session.endsAt - Date.now()) / 1000));
+  session.remainingSeconds = rem;
+  updateRingDisplay(session, session.phase === "rest" ? REST_SECONDS : session.target);
+  if(rem <= 0){
+    stopTicking();
+    session.isRunning = false;
+    session.endsAt = null;
+    beep(); buzz(200);
+    saveExerciseSession(session);
+    if(session.phase === "rest") finishRest(session); else onSetComplete(session);
+  }
+}
+
+function finishRest(session){
+  stopTicking();
+  session.currentSet += 1;
+  session.phase = "exercise";
+  session.isRunning = false;
+  session.isPaused = true;
+  session.endsAt = null;
+  const mode = EXLIB[session.exerciseId].type;
+  if(mode === "hold"){ session.remainingSeconds = session.target; }
+  else { session.currentReps = 0; }
+  saveExerciseSession(session);
+  renderPlayer();
+}
+
+function onSetComplete(session){
+  stopTicking();
+  session.completedSets = session.currentSet;
+  if(session.currentSet < session.sets){
+    session.phase = "rest";
+    session.remainingSeconds = REST_SECONDS;
+    saveExerciseSession(session);
+    startTimer(session); // 休憩は自動でカウントダウン開始
+  } else {
+    session.phase = "completed";
+    session.completed = true;
+    session.isRunning = false;
+    session.isPaused = true;
+    session.endsAt = null;
+    saveExerciseSession(session);
+    renderPlayer();
+    if(session.menuType === "core" || session.menuType === "shoulder"){
+      const allIds = currentBasket.list.map(it => it.id);
+      markExerciseCompletedInMenu(session.dateKey, session.menuType, session.exerciseId, allIds);
+      renderToday(); renderHero(); renderBadgesQuiet();
+      const allDone = getMenuProgress(session.dateKey, session.menuType).completed;
+      if(allDone){
+        showToast("✅ " + (session.menuType === "core" ? "体幹・下半身トレ" : "肩・首・前腕ケア") + " 全種目完了！チェックしました");
+      }
+    }
+  }
+}
+
+function bindPlayerControls(){
+  const ps = playerSession;
+  const startPauseBtn = document.getElementById("exStartPauseBtn");
+  if(startPauseBtn) startPauseBtn.onclick = () => { ps.isRunning ? pauseTimer(ps) : startTimer(ps); };
+
+  const resetBtn = document.getElementById("exResetBtn");
+  if(resetBtn) resetBtn.onclick = () => {
+    if(!confirm("この種目の回数・セット・タイマー記録をリセットしますか？")) return;
+    stopTicking();
+    const def = EXLIB[ps.exerciseId];
+    const newSession = clearExerciseSession(ps.dateKey, ps.menuType, ps.exerciseId, ps.target, ps.sets);
+    if(ps.menuType === "core" || ps.menuType === "shoulder"){
+      const progress = getMenuProgress(ps.dateKey, ps.menuType);
+      const idx2 = progress.completedExerciseIds.indexOf(ps.exerciseId);
+      if(idx2 > -1){
+        progress.completedExerciseIds.splice(idx2, 1);
+        progress.completed = false;
+        const log = getLog(ps.dateKey);
+        log[ps.menuType] = false;
+        saveDataSync();
+        renderToday(); renderHero(); renderBadgesQuiet();
+      }
+    }
+    playerSession = newSession;
+    renderPlayer();
+  };
+
+  const tapCircle = document.getElementById("exTapCircle");
+  if(tapCircle) tapCircle.onclick = () => {
+    ps.currentReps = Math.min(ps.target, ps.currentReps + 1);
+    saveExerciseSession(ps);
+    tapCircle.classList.remove("pulse"); void tapCircle.offsetWidth; tapCircle.classList.add("pulse");
+    const big = document.getElementById("exRepsBig");
+    if(big) big.textContent = ps.currentReps + "/" + ps.target;
+    if(ps.currentReps >= ps.target){ beep(); buzz(150); onSetComplete(ps); }
+  };
+
+  const minusBtn = document.getElementById("exMinusBtn");
+  if(minusBtn) minusBtn.onclick = () => {
+    ps.currentReps = Math.max(0, ps.currentReps - 1);
+    saveExerciseSession(ps);
+    const big = document.getElementById("exRepsBig");
+    if(big) big.textContent = ps.currentReps + "/" + ps.target;
+  };
+
+  const skipRestBtn = document.getElementById("exSkipRestBtn");
+  if(skipRestBtn) skipRestBtn.onclick = () => finishRest(ps);
+
+  const nextBtn = document.getElementById("exNextBtn");
+  if(nextBtn) nextBtn.onclick = () => openPlayer(currentBasket.index + 1);
+
+  const backToListBtn = document.getElementById("exBackToListBtn");
+  if(backToListBtn) backToListBtn.onclick = () => { stopTicking(); playerSession = null; renderExerciseList(); };
+}
+
+document.getElementById("exClose").addEventListener("click", () => closeExOverlay(true));
+document.getElementById("exOverlay").addEventListener("click", (e) => {
+  if(e.target.id === "exOverlay") closeExOverlay(true);
+});
+// エクササイズ導線はTodayの項目内に動的生成されるためイベントデリゲーションで拾う
+document.getElementById("itemsWrap").addEventListener("click", (e) => {
+  const link = e.target.closest(".ex-link");
+  if(link){ e.stopPropagation(); openBasket(link.dataset.open); }
+});
+
+/* ============================================================
+   RENDER: WEEK LIST
+============================================================ */
+function renderWeekList(){
+  const list = document.getElementById("weekList");
+  list.innerHTML = "";
+  const curWeek = currentWeekNum(new Date());
+  for(let w=1; w<=19; w++){
+    const [s,e] = weekDates(w);
+    const div = document.createElement("div");
+    div.className = "wk-card" + (w===curWeek?" current":"") + (w<curWeek?" past":"");
+    div.innerHTML = `
+      <div class="wknum">${String(w).padStart(2,"0")}</div>
+      <div class="wkbody">
+        <div class="phase-chip">${phaseOf(w)}</div>
+        <div class="wktheme">${THEMES[w]}${w===19?"（本番週）":""}</div>
+        <div class="wkdate">${fmtMD(s)}〜${fmtMD(e)} ／ ウォーキング目標 ${WALK_TARGET[w]}分</div>
+        <div class="wkmenu">${CORE_MENU[w]}</div>
+        <div class="wkmenu" style="color:var(--amber);margin-top:3px;">"${MOTTOS[w]}"</div>
+      </div>`;
+    list.appendChild(div);
+  }
+}
+
+/* ============================================================
+   RENDER: TIPS ACCORDION
+============================================================ */
+function renderTips(){
+  const wrap = document.getElementById("accWrap");
+  wrap.innerHTML = "";
+
+  const libCard = document.createElement("div");
+  libCard.className = "ex-list-card";
+  libCard.id = "openLibraryCard";
+  libCard.innerHTML = `
+    <div class="ex-mini">${figureSVG("arch-bounce", "mini")}</div>
+    <div style="flex:1;min-width:0;">
+      <div class="exn">エクササイズ図鑑を見る</div>
+      <div class="exd">全種目のやり方・アニメーション・タイマーをいつでも練習できます</div>
+    </div>
+    <div style="color:var(--muted);font-size:16px;">›</div>`;
+  libCard.addEventListener("click", () => openBasket("all"));
+  wrap.appendChild(libCard);
+
+  TIPS.forEach((sec, i)=>{
+    const acc = document.createElement("div");
+    acc.className = "accordion";
+    acc.innerHTML = `
+      <div class="acc-head" data-i="${i}">
+        <div class="l">
+          <div class="ico2"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${sec.icon}</svg></div>
+          <div class="t">${sec.t}</div>
+        </div>
+        <div class="chev">▾</div>
+      </div>
+      <div class="acc-body"><div class="acc-body-in">
+        <div class="lead">${sec.lead}</div>
+        <ul>${sec.items.map(it=>`<li>${it}</li>`).join("")}</ul>
+      </div></div>`;
+    wrap.appendChild(acc);
+  });
+  wrap.querySelectorAll(".acc-head").forEach(h=>{
+    h.addEventListener("click", ()=>{
+      const body = h.nextElementSibling;
+      const opening = !h.classList.contains("open");
+      h.classList.toggle("open", opening);
+      body.style.maxHeight = opening ? body.scrollHeight+"px" : "0px";
+    });
+  });
+}
+
+/* ============================================================
+   RENDER: BADGES + HISTORY
+============================================================ */
+const BADGE_DEFS = [
+ {id:"streak7", name:"7日ストリーク", icon:'<path d="M13 2L4 14h6l-1 8 9-12h-6z"/>',
+  test: ()=> computeStreak()>=7},
+ {id:"days30", name:"30日出走", icon:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>',
+  test: ()=> loggedDaysCount()>=30},
+ {id:"phase1", name:"基礎期クリア", icon:'<circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/>',
+  test: ()=> phasePassRate(1,4)},
+ {id:"phase2", name:"持久力期クリア", icon:'<path d="M4 19l6-9 4 5 6-9"/>',
+  test: ()=> phasePassRate(5,8)},
+ {id:"phase3", name:"現場動作期クリア", icon:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
+  test: ()=> phasePassRate(9,12)},
+ {id:"phase4", name:"実践期クリア", icon:'<path d="M4 15v-3a8 8 0 0116 0v3"/>',
+  test: ()=> phasePassRate(13,16)},
+ {id:"lv5", name:"Lv.5到達", icon:'<path d="M12 2l2.4 6.8L21 9l-5 4.3L17.5 21 12 17l-5.5 4L8 13.3 3 9l6.6-.2z"/>',
+  test: ()=> levelInfo(totalPoints()).idx>=4},
+ {id:"lv10", name:"プロカメラマン", icon:'<path d="M13 4a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/><path d="M9 21l2-6-2-2 1-5 4 1 2 4-3 2 1 6"/>',
+  test: ()=> levelInfo(totalPoints()).idx>=9},
+ {id:"eventday", name:"本番当日到達", icon:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  test: ()=> new Date() >= EVENT_DAY},
+];
+function phasePassRate(w1,w2){
+  const [s] = weekDates(w1);
+  const [,e] = weekDates(w2);
+  const now = new Date();
+  if(now < e) return false; // phase not finished yet
+  let elapsedDays=0, loggedDays=0;
+  for(let d=new Date(s); d<=e; d.setDate(d.getDate()+1)){
+    elapsedDays++;
+    const k = dateKey(d);
+    if(DATA.logs[k] && pointsFor(DATA.logs[k], weekFromKey(k))>0) loggedDays++;
+  }
+  return elapsedDays>0 && (loggedDays/elapsedDays) >= 0.5;
+}
+function renderBadges(){
+  const grid = document.getElementById("badgeGrid");
+  grid.innerHTML = "";
+  BADGE_DEFS.forEach(b=>{
+    const earned = b.test();
+    const div = document.createElement("div");
+    div.className = "badge"+(earned?" earned":"");
+    div.innerHTML = `<div class="bicon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${b.icon}</svg></div>
+      <div class="bname">${b.name}</div>`;
+    grid.appendChild(div);
+  });
+}
+function renderBadgesQuiet(){
+  // silently refresh + toast for newly earned badges
+  BADGE_DEFS.forEach(b=>{
+    const earned = b.test();
+    if(earned && !DATA.badgesSeen[b.id]){
+      DATA.badgesSeen[b.id] = true;
+      showToast("🏅 バッジ獲得: "+b.name);
+      saveData();
+    }
+  });
+  renderBadges();
+}
+function renderHistory(){
+  const list = document.getElementById("historyList");
+  const empty = document.getElementById("historyEmpty");
+  const keys = Object.keys(DATA.logs).sort().reverse().slice(0,10);
+  list.innerHTML = "";
+  empty.style.display = keys.length ? "none" : "block";
+  keys.forEach(k=>{
+    const log = DATA.logs[k];
+    const pts = pointsFor(log, weekFromKey(k));
+    if(pts===0 && !log.note) return;
+    const div = document.createElement("div");
+    div.className = "wk-card";
+    div.style.alignItems="center";
+    div.innerHTML = `<div class="wknum" style="font-size:13px;width:52px;">${k.slice(5).replace('-','/')}</div>
+      <div class="wkbody">
+        <div class="wktheme" style="font-size:12.5px;">達成 ${pts}/6 ${log.mode==='tired'?'（しんどい日モード）':''}</div>
+        ${log.note?`<div class="wkmenu">${log.note}</div>`:""}
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+/* ============================================================
+   NAV
+============================================================ */
+document.querySelectorAll(".nav-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    if(document.getElementById("exOverlay").classList.contains("show")) closeExOverlay(true);
+    document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+    document.getElementById("view-"+btn.dataset.view).classList.add("active");
+    if(btn.dataset.view==="badges"){ renderBadges(); renderHistory(); }
+  });
+});
+
+function showToast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"), 2200);
+}
+
+/* ============================================================
+   INIT
+============================================================ */
+function showApp(){
+  document.getElementById("loading").style.display = "none";
+  document.getElementById("app").style.display = "flex";
+}
+async function initApp(){
+  await loadData();
+  renderToday();
+  renderHero();
+  renderWeekList();
+  renderTips();
+  renderBadges();
+  renderHistory();
+  showApp();
+}
+initApp();
+
+// PWA: オフラインでも起動できるようService Workerを登録する。
+// 登録に失敗してもアプリ本体（localStorage含む）の動作には影響しない。
+if("serviceWorker" in navigator){
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js").catch((e) => {
+      console.debug("[service-worker] 登録できませんでした（file://で直接開いている等）:", e);
+    });
+  });
+}
+</script>
+
+</body>
+</html>
