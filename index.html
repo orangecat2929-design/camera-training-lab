@@ -83,6 +83,18 @@
   .section-head h2{font-size:15.5px;margin:0;font-weight:700;}
   .section-head .tag{font-size:11px;color:var(--muted);}
 
+  .date-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+  .date-nav-btn{width:40px;height:40px;border-radius:12px;background:var(--surface);border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;color:var(--text);cursor:pointer;flex-shrink:0;}
+  .date-nav-btn svg{width:18px;height:18px;}
+  .date-nav-btn.disabled{opacity:.28;pointer-events:none;}
+  .date-nav-center{flex:1;text-align:center;min-width:0;}
+  .date-nav-label{font-family:'Zen Kaku Gothic New',sans-serif;font-size:16px;font-weight:700;}
+  .date-nav-sub{font-size:10.5px;color:var(--muted);margin-top:2px;}
+  .back-today-btn{display:inline-flex;align-items:center;gap:5px;padding:7px 16px;border-radius:99px;
+    background:var(--amber-dim);color:var(--amber);font-size:11.5px;font-weight:700;cursor:pointer;
+    border:1px solid var(--amber);}
+
   .week-banner{background:var(--surface);border:1px solid var(--border);border-radius:16px;
     padding:13px 15px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:10px;}
   .week-banner .phase-chip{display:inline-block;font-size:10.5px;color:var(--amber);
@@ -163,6 +175,13 @@
   .wk-card .wkmenu{font-size:11.5px;color:#C4CAD3;line-height:1.5;}
   .wk-card .phase-chip{display:inline-block;font-size:9.5px;color:var(--amber);
     background:var(--amber-dim);border-radius:99px;padding:1.5px 7px;margin-bottom:5px;}
+  .day-chip-row{display:flex;gap:5px;margin-top:9px;flex-wrap:wrap;}
+  .day-chip{width:25px;height:25px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;font-size:10.5px;color:var(--muted);cursor:pointer;
+    font-family:'Oswald',sans-serif;}
+  .day-chip.future{opacity:.25;pointer-events:none;}
+  .day-chip.has-record{border-color:var(--turf);color:var(--turf);}
+  .day-chip.selected{background:var(--amber);color:#241a08;border-color:var(--amber);font-weight:700;}
 
   /* badges */
   .badge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:16px;}
@@ -342,9 +361,20 @@
   <main>
     <!-- ============ VIEW: 今日 ============ -->
     <div class="view active" id="view-today">
-      <div class="section-head" style="margin-top:18px;">
-        <h2>今日のチェックリスト</h2>
-        <span class="tag" id="todayDate">-</span>
+      <div class="date-nav" style="margin-top:18px;">
+        <div class="date-nav-btn" id="datePrevBtn" title="前日へ">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </div>
+        <div class="date-nav-center">
+          <div class="date-nav-label" id="todayDate">-</div>
+          <div class="date-nav-sub" id="dateNavSub">今日のチェックリスト</div>
+        </div>
+        <div class="date-nav-btn" id="dateNextBtn" title="翌日へ">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+      <div id="backTodayRow" style="display:none;text-align:center;margin-bottom:8px;">
+        <div class="back-today-btn" id="backTodayBtn">📅 今日に戻る</div>
       </div>
 
       <div class="week-banner">
@@ -762,6 +792,11 @@ function saveDataSync(){
 function saveData(){ saveDataSync(); }
 
 function todayKey(){ return dateKey(new Date()); }
+let selectedDate = new Date(); // 「今日」タブで表示中の日付（過去日を選ぶとここが変わる）
+function selectedDateKey(){ return dateKey(selectedDate); }
+function isToday(d){ return dateKey(d) === todayKey(); }
+function isFutureDate(d){ return dateKey(d) > todayKey(); }
+
 function getLog(key){
   if(!DATA.logs[key]) DATA.logs[key] = {mode:"normal", walk:0, core:false, shoulder:false, brain:false,
     sleepH:null, sleepQ:null, meal:false, note:""};
@@ -821,15 +856,53 @@ function levelInfo(pts){
 /* ============================================================
    RENDER: TODAY
 ============================================================ */
+// 日付を移動する前に、今表示している日付の入力内容(メモ等)を確実に保存してから切り替える。
+function flushNoteToSelectedLog(){
+  const noteEl = document.getElementById("noteInput");
+  if(!noteEl) return;
+  const log = getLog(selectedDateKey());
+  log.note = noteEl.value;
+}
+function goToDate(newDate){
+  if(isFutureDate(newDate)) return; // 未来日には移動しない
+  flushNoteToSelectedLog();
+  saveDataSync();
+  selectedDate = newDate;
+  renderToday();
+  renderHero();
+  renderBadgesQuiet();
+}
+function goToPrevDay(){
+  const d = new Date(selectedDate);
+  d.setDate(d.getDate() - 1);
+  goToDate(d);
+}
+function goToNextDay(){
+  const d = new Date(selectedDate);
+  d.setDate(d.getDate() + 1);
+  if(isFutureDate(d)) return;
+  goToDate(d);
+}
+function goToToday(){ goToDate(new Date()); }
+
 function renderToday(){
-  const now = new Date();
-  const key = todayKey();
+  const now = selectedDate;
+  const key = dateKey(selectedDate);
   const week = currentWeekNum(now);
   const log = getLog(key);
   currentMode = log.mode || "normal";
+  const todayFlag = isToday(now);
 
   document.getElementById("todayDate").textContent =
-    (now.getMonth()+1)+"/"+now.getDate()+"（"+["日","月","火","水","木","金","土"][now.getDay()]+"）";
+    (now.getMonth()+1)+"/"+now.getDate()+"（"+["日","月","火","水","木","金","土"][now.getDay()]+"）"
+    + (todayFlag ? "" : "");
+  const sub = document.getElementById("dateNavSub");
+  if(sub) sub.textContent = todayFlag ? "今日のチェックリスト" : "過去の記録を編集中";
+  const nextBtn = document.getElementById("dateNextBtn");
+  if(nextBtn) nextBtn.classList.toggle("disabled", todayFlag);
+  const backRow = document.getElementById("backTodayRow");
+  if(backRow) backRow.style.display = todayFlag ? "none" : "block";
+
   document.getElementById("tPhase").textContent = phaseOf(week);
   document.getElementById("tTheme").textContent = THEMES[week];
   document.getElementById("tMenu").textContent = "今週の体幹メニュー: " + CORE_MENU[week];
@@ -886,11 +959,11 @@ function renderToday(){
   document.getElementById("noteInput").value = log.note || "";
   document.getElementById("todayPts").textContent = pointsFor(log, week);
 
-  // bind events
+  // bind events（保存対象の日付は必ず selectedDateKey() から取得する）
   wrap.querySelectorAll(".check").forEach(chk=>{
     chk.addEventListener("click", async ()=>{
       const k = chk.dataset.key;
-      const log2 = getLog(key);
+      const log2 = getLog(selectedDateKey());
       log2[k] = !log2[k];
       await saveData();
       renderToday(); renderHero(); renderBadgesQuiet();
@@ -898,7 +971,7 @@ function renderToday(){
   });
   wrap.querySelectorAll('input[data-num="walk"]').forEach(inp=>{
     inp.addEventListener("change", async ()=>{
-      const log2 = getLog(key);
+      const log2 = getLog(selectedDateKey());
       log2.walk = Math.max(0, parseInt(inp.value)||0);
       await saveData();
       renderToday(); renderHero(); renderBadgesQuiet();
@@ -906,7 +979,7 @@ function renderToday(){
   });
   wrap.querySelectorAll('input[data-num="sleepH"]').forEach(inp=>{
     inp.addEventListener("change", async ()=>{
-      const log2 = getLog(key);
+      const log2 = getLog(selectedDateKey());
       log2.sleepH = inp.value===""?null:parseFloat(inp.value);
       await saveData();
       renderToday(); renderHero();
@@ -914,7 +987,7 @@ function renderToday(){
   });
   wrap.querySelectorAll('select[data-sel="sleepQ"]').forEach(sel=>{
     sel.addEventListener("change", async ()=>{
-      const log2 = getLog(key);
+      const log2 = getLog(selectedDateKey());
       log2.sleepQ = sel.value===""?null:parseInt(sel.value);
       await saveData();
       renderToday(); renderHero(); renderBadgesQuiet();
@@ -923,22 +996,26 @@ function renderToday(){
 }
 
 document.getElementById("noteInput").addEventListener("blur", async ()=>{
-  const log = getLog(todayKey());
+  const log = getLog(selectedDateKey());
   log.note = document.getElementById("noteInput").value;
   await saveData();
 });
 
 document.getElementById("modeNormal").addEventListener("click", async ()=>{
-  const log = getLog(todayKey());
+  const log = getLog(selectedDateKey());
   log.mode = "normal";
   await saveData(); renderToday(); renderHero();
 });
 document.getElementById("modeTired").addEventListener("click", async ()=>{
-  const log = getLog(todayKey());
+  const log = getLog(selectedDateKey());
   log.mode = "tired";
   await saveData(); renderToday(); renderHero();
   showToast("しんどい日モード：無理せずいこう");
 });
+
+document.getElementById("datePrevBtn").addEventListener("click", goToPrevDay);
+document.getElementById("dateNextBtn").addEventListener("click", goToNextDay);
+document.getElementById("backTodayBtn").addEventListener("click", goToToday);
 
 /* ============================================================
    RENDER: HERO
@@ -1089,8 +1166,8 @@ function closeExOverlay(fromUserAction){
 }
 // タブが隠れる/離脱する瞬間の保存専用（オーバーレイは閉じない。タイマーの状態はそのまま保持）
 function persistCurrentSessionSnapshot(){
-  if(!playerSession) return;
-  saveExerciseSession(playerSession);
+  flushNoteToSelectedLog();
+  if(playerSession) saveExerciseSession(playerSession);
   saveDataSync();
 }
 window.addEventListener("popstate", () => {
@@ -1107,7 +1184,7 @@ function openBasket(basketKey){
   if(document.getElementById("exOverlay").classList.contains("show")) closeExOverlay(false);
   stopTicking();
   playerSession = null;
-  const week = currentWeekNum(new Date());
+  const week = currentWeekNum(selectedDate);
   let list, title;
   if(basketKey === "all"){
     list = Object.keys(EXLIB).map(id => ({id, target: EXLIB[id].defaultTarget, sets: EXLIB[id].defaultSets}));
@@ -1127,9 +1204,9 @@ function openBasket(basketKey){
 function renderExerciseList(){
   document.getElementById("exPanelTitle").textContent = currentBasket.title;
   const body = document.getElementById("exPanelBody");
-  const dateKey = todayKey();
+  const targetDateKey = selectedDateKey();
   const progress = (currentBasket.key === "core" || currentBasket.key === "shoulder")
-    ? getMenuProgress(dateKey, currentBasket.key) : { completedExerciseIds: [] };
+    ? getMenuProgress(targetDateKey, currentBasket.key) : { completedExerciseIds: [] };
   let html = `<div class="empty-hint" style="text-align:left;padding:0 0 12px;">気になる種目をタップすると、やり方とタイマーが開きます。</div>`;
   currentBasket.list.forEach((it, i) => {
     const def = EXLIB[it.id];
@@ -1155,9 +1232,9 @@ function openPlayer(index){
   stopTicking();
   currentBasket.index = index;
   const it = currentBasket.list[index];
-  const dateKey = todayKey();
+  const targetDateKey = selectedDateKey();
   const menuType = currentBasket.key;
-  let session = getExerciseSession(dateKey, menuType, it.id, it.target, it.sets);
+  let session = getExerciseSession(targetDateKey, menuType, it.id, it.target, it.sets);
   session = normalizeRestoredSession(session);
   saveExerciseSession(session);
   playerSession = session;
@@ -1412,10 +1489,26 @@ function renderWeekList(){
   const list = document.getElementById("weekList");
   list.innerHTML = "";
   const curWeek = currentWeekNum(new Date());
+  const wdJp = ["日","月","火","水","木","金","土"];
   for(let w=1; w<=19; w++){
     const [s,e] = weekDates(w);
     const div = document.createElement("div");
     div.className = "wk-card" + (w===curWeek?" current":"") + (w<curWeek?" past":"");
+
+    let chipsHtml = "";
+    for(let i=0;i<7;i++){
+      const d = new Date(s); d.setDate(d.getDate()+i);
+      const k = dateKey(d);
+      const future = isFutureDate(d);
+      const hasRecord = !!(DATA.logs[k] && pointsFor(DATA.logs[k], w) > 0);
+      const selected = k === selectedDateKey();
+      const cls = ["day-chip"];
+      if(future) cls.push("future");
+      if(hasRecord) cls.push("has-record");
+      if(selected) cls.push("selected");
+      chipsHtml += `<div class="${cls.join(" ")}" data-date="${k}" title="${fmtMD(d)}（${wdJp[d.getDay()]}）">${d.getDate()}</div>`;
+    }
+
     div.innerHTML = `
       <div class="wknum">${String(w).padStart(2,"0")}</div>
       <div class="wkbody">
@@ -1424,9 +1517,26 @@ function renderWeekList(){
         <div class="wkdate">${fmtMD(s)}〜${fmtMD(e)} ／ ウォーキング目標 ${WALK_TARGET[w]}分</div>
         <div class="wkmenu">${CORE_MENU[w]}</div>
         <div class="wkmenu" style="color:var(--amber);margin-top:3px;">"${MOTTOS[w]}"</div>
+        <div class="day-chip-row">${chipsHtml}</div>
       </div>`;
     list.appendChild(div);
   }
+  list.querySelectorAll(".day-chip:not(.future)").forEach(chip=>{
+    chip.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      const [y,m,d] = chip.dataset.date.split("-").map(Number);
+      openDateInToday(new Date(y, m-1, d));
+    });
+  });
+}
+
+// 週間タブの日付チップから、その日の記録編集画面を「今日」タブで開く
+function openDateInToday(date){
+  goToDate(date);
+  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
+  document.querySelector('.nav-btn[data-view="today"]').classList.add("active");
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  document.getElementById("view-today").classList.add("active");
 }
 
 /* ============================================================
@@ -1564,11 +1674,14 @@ function renderHistory(){
 document.querySelectorAll(".nav-btn").forEach(btn=>{
   btn.addEventListener("click", ()=>{
     if(document.getElementById("exOverlay").classList.contains("show")) closeExOverlay(true);
+    flushNoteToSelectedLog();
+    saveDataSync();
     document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
     btn.classList.add("active");
     document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
     document.getElementById("view-"+btn.dataset.view).classList.add("active");
     if(btn.dataset.view==="badges"){ renderBadges(); renderHistory(); }
+    if(btn.dataset.view==="week"){ renderWeekList(); }
   });
 });
 
